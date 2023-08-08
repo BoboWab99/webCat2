@@ -6,8 +6,10 @@ define("DB_USERNAME", "root");
 define("DB_PASSWORD", "");
 define("DB_NAME", "cat_db");
 
-function getConnection()
-{
+/**
+ * Used to create a connection to the database
+ */
+function getConnection() {
    // create connection
    $conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
@@ -17,6 +19,6 @@ function getConnection()
       echo "Database connection failed!";
       return null;
    }
-   
+
    return $conn;
 }

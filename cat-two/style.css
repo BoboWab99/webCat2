@@ -49,6 +49,14 @@ input[type="submit"] {
    cursor: pointer;
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled,
+button:disabled {
+   pointer-events: none;
+   opacity: .5;
+}
+
 body {
    color: black;
    background-color: rgb(226, 239, 222);
@@ -134,4 +142,15 @@ form {
    display: block;
    margin-bottom: 5px;
    color: rgb(82, 132, 132);
+}
+
+.form-field .form-hint {
+   color: #97636c;
+   font-size: smaller;
+   font-style: italic;
+}
+
+.form-field .form-hint::before,
+.form-field .form-hint::after {
+   content: " *** ";
 }

@@ -2,16 +2,18 @@
 
 require_once "connect.php";
 
+session_start();
+
+$is_user_logged_in = isset($_SESSION['auth_user']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-   // get & validate data
-   // $username = test_input($_POST['username']);
+   // get form data
    $email = $_POST['email'];
    $password = $_POST['password'];
 
    // check data from db
-   $query = "SELECT `id` FROM `user`";
-   $query .= "WHERE `email` = '{$email}' AND `password` = '{$password}' LIMIT 1;";
+   $query = "SELECT * FROM `user`";
+   $query .= "WHERE `email` = '$email' LIMIT 1;";
 
    $conn = getConnection();
    $result = mysqli_query($conn, $query);
@@ -19,17 +21,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    if ($result) {
       if (mysqli_num_rows($result) > 0) {
          $data = mysqli_fetch_assoc($result);
+         $hashed_password = $data['password'];
 
-         // save user id in session
-         $_SESSION['user_id'] = $data['id'];
-
-         // go to profile
-         header('Location: profile.php');
+         if (password_verify($password, $hashed_password)) {
+            // save user info in session
+            $_SESSION['auth_user'] = array(
+               'id' => $data['id'],
+               'account_type' => $data['account_type'],
+               'username' => $data['username'],
+               'email' => $data['email'],
+               'phone' => $data['phone'],
+               'dob' => $data['dob'],
+               'password' => $data['password'],
+            );
+            // go to profile
+            header('Location: profile.php');
+            exit();
+         } else {
+            // refresh page
+            $_SESSION['login_error'] = "Incorrect password!!!";
+            header("Refresh:0");
+            exit();
+         }
       } else {
          // refresh page
+         $_SESSION['login_error'] = "Email does not match our records!!!";
          header("Refresh:0");
+         exit();
       }
-      exit();
    } else {
       echo "Error: " . $query . "<br>" . mysqli_error($conn);
    }
@@ -38,10 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    mysqli_close($conn);
 }
 
+
+// --- END LOGIC ---
 ?>
-
-
-<!-- END LOGIC -->
 
 
 <!DOCTYPE html>
@@ -51,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Register</title>
+   <title>Sower | Login</title>
    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine">
    <link rel="stylesheet" href="style.css">
 </head>
@@ -59,20 +77,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
    <?php include_once("header.php"); ?>
 
-   <H1>Login</H1>
+   <h1>Login</h1>
 
-   <form action="<?php echo $_SERVER['REQUEST_URI'] ?>" id="form" method="POST">
+   <form id="form" method="POST">
+      <?php
+      if (isset($_SESSION['login_error'])) {
+         echo "<p style='color: #dc3545'>" . $_SESSION['login_error'] . "</p>";
+         unset($_SESSION['login_error']);
+      }
+      if ($is_user_logged_in) {
+         echo "<p style='color: #12b212'><b>You're already logged in!!!</b></p>";
+      }
+      ?>
+
       <div class="form-field">
-         <label for="email">Email: <small><i>(name@example.com)</i></small></label>
-         <input type="email" name="email" id="email" placeholder="Enter Your Email" pattern="\S+@\S+\.\S+" required>
+         <label for="email">Email: <small><i>(required)</i></small></label>
+         <input type="email" name="email" id="email" placeholder="Enter Your Email" pattern="\S+@\S+\.\S+" required autofocus>
+         <label class="form-hint" for="email">Eg: name@example.com</label>
       </div>
 
       <div class="form-field">
-         <label for="password">Password: <small><i>(uppercase & numbers only, at least 8 characters)</i></small></label>
+         <label for="password">Password: <small><i>(required)</i></small></label>
          <input type="password" name="password" id="password" placeholder="Enter the password" pattern="[0-9A-Z]{8,}" required>
+         <label class="form-hint" for="password">Uppercase & numbers only, at least 8 characters</label>
       </div>
 
-      <button type="submit">Submit</button>
+      <button type="submit" <?php if ($is_user_logged_in) echo 'disabled' ?>>Submit</button>
    </form>
 
    <br><br>
