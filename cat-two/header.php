@@ -19,7 +19,7 @@ $is_user_logged_in = isset($_SESSION['auth_user']);
    <div class="right">
       <?php
       if ($is_user_logged_in) {
-         echo "<b style='color: white'>@". $_SESSION['auth_user']['username'] ."</b>";
+         echo "<a href='profile.php' style='color: white'>@". $_SESSION['auth_user']['username'] ."</a>";
          echo "<a href='logout.php'>Logout</a>";
       } else {
          echo "<a href='register.php'>Register</a>";

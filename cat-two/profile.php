@@ -33,9 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       exit();
    } else {
       // save to database
-      $query = "UPDATE `user`";
+      $user_id = $auth_user['id'];        // *** added this line
+      $query  = "UPDATE `user`";
       $query .= " SET `account_type`='$new_account_type', `username`='$new_username', `email`='$new_email',";
-      $query .= " `phone`='$new_tel', `dob`='$new_dob', `password`='$new_password';";
+      $query .= " `phone`='$new_tel', `dob`='$new_dob', `password`='$new_password'";
+      $query .= " WHERE id = $user_id";   // *** and this line
 
       $conn = getConnection();
 
@@ -76,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Sower | My Profile</title>
+   <title>GoldOak | My Profile</title>
    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine">
    <link rel="stylesheet" href="style.css">
 </head>
